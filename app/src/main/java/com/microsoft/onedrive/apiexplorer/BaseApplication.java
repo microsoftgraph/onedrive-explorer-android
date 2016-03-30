@@ -22,7 +22,6 @@
 
 package com.microsoft.onedrive.apiexplorer;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -33,15 +32,15 @@ import android.provider.Settings;
 import android.util.LruCache;
 import android.widget.Toast;
 
-import com.onedrive.sdk.authentication.ADALAuthenticator;
-import com.onedrive.sdk.authentication.MSAAuthenticator;
-import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.core.ClientException;
-import com.onedrive.sdk.core.DefaultClientConfig;
-import com.onedrive.sdk.core.IClientConfig;
-import com.onedrive.sdk.extensions.IOneDriveClient;
-import com.onedrive.sdk.extensions.OneDriveClient;
-import com.onedrive.sdk.logger.LoggerLevel;
+import com.microsoft.graph.authentication.IAuthenticationAdapter;
+import com.microsoft.graph.authentication.MSAAuthAndroidAdapter;
+import com.microsoft.graph.concurrency.ICallback;
+import com.microsoft.graph.core.ClientException;
+import com.microsoft.graph.core.DefaultClientConfig;
+import com.microsoft.graph.core.IClientConfig;
+import com.microsoft.graph.extensions.GraphServiceClient;
+import com.microsoft.graph.extensions.IGraphServiceClient;
+import com.microsoft.graph.logger.LoggerLevel;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -63,12 +62,17 @@ public class BaseApplication extends Application {
     /**
      * The service instance
      */
-    private final AtomicReference<IOneDriveClient> mClient = new AtomicReference<>();
+    private final AtomicReference<IGraphServiceClient> mClient = new AtomicReference<>();
 
     /**
      * The system connectivity manager
      */
     private ConnectivityManager mConnectivityManager;
+
+    /**
+     * The authentication adapter
+     */
+    private IAuthenticationAdapter mAuthenticationAdapter;
 
     /**
      * What to do when the application starts
@@ -77,6 +81,21 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         mConnectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        mAuthenticationAdapter = new MSAAuthAndroidAdapter(BaseApplication.this) {
+            @Override
+            public String getClientId() {
+                return "8b83f251-463f-42d3-b6c4-308eb5fc1c43";
+            }
+
+            @Override
+            public String[] getScopes() {
+                return new String[] {
+                        "https://graph.microsoft.com/Files.Read",
+                        "offline_access",
+                        "openid"
+                };
+            }
+        };
     }
 
     /**
@@ -84,30 +103,7 @@ public class BaseApplication extends Application {
      * @return the newly created configuration
      */
     private IClientConfig createConfig() {
-        final MSAAuthenticator msaAuthenticator = new MSAAuthenticator() {
-            @Override
-            public String getClientId() {
-                return "000000004C146A60";
-            }
-
-            @Override
-            public String[] getScopes() {
-                return new String[] {"onedrive.readwrite", "onedrive.appfolder", "wl.offline_access"};
-            }
-        };
-        final ADALAuthenticator adalAuthenticator = new ADALAuthenticator() {
-            @Override
-            protected String getClientId() {
-                return "b26aadf8-566f-4478-926f-589f601d9c74";
-            }
-
-            @Override
-            protected String getRedirectUrl() {
-                return "msauth://com.microsoft.skydrive/ODD3OR3tCemNTgxEX1K6yZVHByw%3D";
-            }
-        };
-
-        final IClientConfig config = DefaultClientConfig.createWithAuthenticators(msaAuthenticator, adalAuthenticator);
+        final IClientConfig config = DefaultClientConfig.createWithAuthenticationProvider(getAuthenticationAdapter());
         config.getLogger().setLoggingLevel(LoggerLevel.Debug);
         return config;
     }
@@ -133,10 +129,7 @@ public class BaseApplication extends Application {
      * Clears out the auth token from the application store
      */
     void signOut() {
-        if (mClient.get() == null) {
-            return;
-        }
-        mClient.get().getAuthenticator().logout(new ICallback<Void>() {
+        mAuthenticationAdapter.logout(new ICallback<Void>() {
             @Override
             public void success(final Void result) {
                 mClient.set(null);
@@ -146,7 +139,7 @@ public class BaseApplication extends Application {
             }
 
             @Override
-            public void failure(final ClientException ex) {
+            public void failure(ClientException ex) {
                 Toast.makeText(getBaseContext(), "Logout error " + ex, Toast.LENGTH_LONG).show();
             }
         });
@@ -157,35 +150,15 @@ public class BaseApplication extends Application {
      *
      * @return The Service
      */
-    synchronized IOneDriveClient getOneDriveClient() {
+    synchronized IGraphServiceClient getGraphServiceClient() {
         if (mClient.get() == null) {
-            throw new UnsupportedOperationException("Unable to generate a new service object");
+            mClient.set(new GraphServiceClient
+                    .Builder()
+                    .fromConfig(createConfig())
+                    .buildClient());
         }
+
         return mClient.get();
-    }
-
-    /**
-     * Used to setup the Services
-     * @param activity the current activity
-     * @param serviceCreated the callback
-     */
-    synchronized void createOneDriveClient(final Activity activity, final ICallback<Void> serviceCreated) {
-        final DefaultCallback<IOneDriveClient> callback = new DefaultCallback<IOneDriveClient>(activity) {
-            @Override
-            public void success(final IOneDriveClient result) {
-                mClient.set(result);
-                serviceCreated.success(null);
-            }
-
-            @Override
-            public void failure(final ClientException error) {
-                serviceCreated.failure(error);
-            }
-        };
-        new OneDriveClient
-            .Builder()
-            .fromConfig(createConfig())
-            .loginAndBuildClient(activity, callback);
     }
 
     /**
@@ -198,5 +171,9 @@ public class BaseApplication extends Application {
             mImageCache = new LruCache<>(BaseApplication.MAX_IMAGE_CACHE_SIZE);
         }
         return mImageCache;
+    }
+
+    public synchronized IAuthenticationAdapter getAuthenticationAdapter() {
+        return mAuthenticationAdapter;
     }
 }

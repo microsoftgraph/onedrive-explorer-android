@@ -22,15 +22,14 @@
 
 package com.microsoft.onedrive.apiexplorer;
 
-import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.core.ClientException;
-
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.microsoft.graph.core.ClientException;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -63,27 +62,20 @@ public class PlaceholderFragment extends Fragment {
             public void onClick(final View v) {
                 button.setEnabled(false);
                 final BaseApplication app = (BaseApplication)getActivity().getApplication();
-                final ICallback<Void> serviceCreated = new DefaultCallback<Void>(getActivity()) {
+
+                app.getAuthenticationAdapter().login(getActivity(), new DefaultCallback<Void>(getActivity()) {
                     @Override
-                    public void success(final Void result) {
-                        navigateToRoot();
+                    public void success(Void aVoid) {
                         button.setEnabled(true);
+                        navigateToRoot();
                     }
 
                     @Override
-                    public void failure(ClientException error) {
-                        super.failure(error);
+                    public void failure(ClientException ex) {
                         button.setEnabled(true);
+                        super.failure(ex);
                     }
-                };
-                try {
-                    app.getOneDriveClient();
-                    navigateToRoot();
-                    button.setEnabled(true);
-                } catch (final UnsupportedOperationException ignored) {
-                    app.createOneDriveClient(getActivity(), serviceCreated);
-                    button.setEnabled(true);
-                }
+                });
             }
         });
 

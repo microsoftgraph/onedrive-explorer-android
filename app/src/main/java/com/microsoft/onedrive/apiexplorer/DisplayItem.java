@@ -22,7 +22,9 @@
 
 package com.microsoft.onedrive.apiexplorer;
 
-import com.onedrive.sdk.extensions.Item;
+import com.microsoft.graph.extensions.DriveItem;
+import com.microsoft.graph.extensions.IGraphServiceClient;
+import com.microsoft.graph.extensions.ThumbnailRequestBuilder;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -48,7 +50,7 @@ class DisplayItem {
     /**
      * The actual backing item instance
      */
-    private final Item mItem;
+    private final DriveItem mItem;
 
     /**
      * The id for this display item
@@ -69,7 +71,7 @@ class DisplayItem {
      * @param imageCache The thumbnail image cache
      */
     public DisplayItem(final DisplayItemAdapter adapter,
-                       final Item item,
+                       final DriveItem item,
                        final String id,
                        final LruCache<String, Bitmap> imageCache) {
         mImageCache = imageCache;
@@ -90,11 +92,13 @@ class DisplayItem {
 
                     InputStream in = null;
                     try {
-                        in = base.getOneDriveClient()
+                        final IGraphServiceClient graphServiceClient = base.getGraphServiceClient();
+                        final String requestUrl = graphServiceClient
                                 .getDrive()
                                 .getItems(mId)
                                 .getThumbnails("0")
-                                .getThumbnailSize("small")
+                                .getRequestUrl();
+                        in = new ThumbnailRequestBuilder(requestUrl + "/small", graphServiceClient, null) // TODO: Add getThumbnailSize helper
                                 .getContent()
                                 .buildRequest()
                                 .get();
@@ -140,7 +144,7 @@ class DisplayItem {
      * The backing item instance
      * @return The item instance
      */
-    public Item getItem() {
+    public DriveItem getItem() {
         return mItem;
     }
 
