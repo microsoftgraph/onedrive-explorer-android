@@ -23,6 +23,7 @@
 package com.microsoft.onedrive.apiexplorer;
 
 import com.onedrive.sdk.concurrency.ICallback;
+import com.onedrive.sdk.core.ClientException;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -68,6 +69,12 @@ public class PlaceholderFragment extends Fragment {
                         navigateToRoot();
                         button.setEnabled(true);
                     }
+
+                    @Override
+                    public void failure(ClientException error) {
+                        super.failure(error);
+                        button.setEnabled(true);
+                    }
                 };
                 try {
                     app.getOneDriveClient();
@@ -75,6 +82,7 @@ public class PlaceholderFragment extends Fragment {
                     button.setEnabled(true);
                 } catch (final UnsupportedOperationException ignored) {
                     app.createOneDriveClient(getActivity(), serviceCreated);
+                    button.setEnabled(true);
                 }
             }
         });

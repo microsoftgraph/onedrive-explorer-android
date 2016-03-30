@@ -33,6 +33,7 @@ import android.provider.Settings;
 import android.util.LruCache;
 import android.widget.Toast;
 
+import com.onedrive.sdk.authentication.ADALAuthenticator;
 import com.onedrive.sdk.authentication.MSAAuthenticator;
 import com.onedrive.sdk.concurrency.ICallback;
 import com.onedrive.sdk.core.ClientException;
@@ -94,8 +95,19 @@ public class BaseApplication extends Application {
                 return new String[] {"onedrive.readwrite", "onedrive.appfolder", "wl.offline_access"};
             }
         };
+        final ADALAuthenticator adalAuthenticator = new ADALAuthenticator() {
+            @Override
+            protected String getClientId() {
+                return "b26aadf8-566f-4478-926f-589f601d9c74";
+            }
 
-        final IClientConfig config = DefaultClientConfig.createWithAuthenticator(msaAuthenticator);
+            @Override
+            protected String getRedirectUrl() {
+                return "msauth://com.microsoft.skydrive/ODD3OR3tCemNTgxEX1K6yZVHByw%3D";
+            }
+        };
+
+        final IClientConfig config = DefaultClientConfig.createWithAuthenticators(msaAuthenticator, adalAuthenticator);
         config.getLogger().setLoggingLevel(LoggerLevel.Debug);
         return config;
     }
