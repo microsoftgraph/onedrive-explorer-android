@@ -66,13 +66,23 @@ public class PlaceholderFragment extends Fragment {
                 app.getAuthenticationAdapter().login(getActivity(), new DefaultCallback<Void>(getActivity()) {
                     @Override
                     public void success(Void aVoid) {
-                        button.setEnabled(true);
-                        navigateToRoot();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                button.setEnabled(true);
+                                navigateToRoot();
+                            }
+                        });
                     }
 
                     @Override
                     public void failure(ClientException ex) {
-                        button.setEnabled(true);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                button.setEnabled(true);
+                            }
+                        });
                         super.failure(ex);
                     }
                 });

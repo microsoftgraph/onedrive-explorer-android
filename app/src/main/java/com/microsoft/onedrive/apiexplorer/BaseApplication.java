@@ -90,7 +90,7 @@ public class BaseApplication extends Application {
             @Override
             public String[] getScopes() {
                 return new String[] {
-                        "https://graph.microsoft.com/Files.Read",
+                        "https://graph.microsoft.com/Files.ReadWrite",
                         "offline_access",
                         "openid"
                 };

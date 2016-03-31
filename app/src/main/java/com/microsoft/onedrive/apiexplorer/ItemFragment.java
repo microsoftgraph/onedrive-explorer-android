@@ -258,9 +258,9 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                 menu.findItem(R.id.action_download).setVisible(true);
                 menu.findItem(R.id.action_copy).setVisible(true);
             }
-        }
 
-        menu.findItem(R.id.action_copy).setVisible(false); // TODO: Copy isn't supported in graph at the moment
+            menu.findItem(R.id.action_copy).setVisible(false); // TODO: Copy isn't supported in graph at the moment
+        }
     }
 
     @Override
