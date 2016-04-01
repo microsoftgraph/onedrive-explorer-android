@@ -119,6 +119,18 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
     private static final String COPY_DESTINATION_PREF_KEY = "copy_destination";
 
     /**
+     * If the copy flows should be disabled
+     * TODO: SERVICE DriveItems copy is not supported in graph
+     */
+    private static final boolean COPY_DISABLED = true;
+
+    /**
+     * If function calls should be disabled
+     * TODO: SERVICE Functions routing is not working correct, getting method not found
+     */
+    private static final boolean FUNCTIONS_DISABLED = true;
+
+    /**
      * The item id for this item
      */
     private String mItemId;
@@ -259,7 +271,13 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                 menu.findItem(R.id.action_copy).setVisible(true);
             }
 
-            menu.findItem(R.id.action_copy).setVisible(false); // TODO: SERVICE DriveItems copy isn't supported in graph at the moment
+            if (COPY_DISABLED) {
+                menu.findItem(R.id.action_copy).setVisible(false);
+            }
+            if (FUNCTIONS_DISABLED) {
+                menu.findItem(R.id.action_view_delta).setVisible(false);
+                menu.findItem(R.id.action_create_link).setVisible(false);
+            }
         }
     }
 
@@ -457,22 +475,22 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                 @Override
                 public void onClick(final DialogInterface dialog, final int which) {
                     final BaseApplication application = (BaseApplication) getActivity()
-                                                                              .getApplication();
+                            .getApplication();
                     application.getGraphServiceClient()
                             .getMe()
-                        .getDrive()
-                        .getItems(item.id)
-                        .buildRequest()
-                        .delete(new DefaultCallback<Void>(application) {
-                            @Override
-                            public void success(final Void response) {
-                                Toast.makeText(getActivity(),
-                                        application.getString(R.string.deleted_this_item,
-                                                item.name),
-                                        Toast.LENGTH_LONG).show();
-                                getActivity().onBackPressed();
-                            }
-                        });
+                            .getDrive()
+                            .getItems(item.id)
+                            .buildRequest()
+                            .delete(new DefaultCallback<Void>(application) {
+                                @Override
+                                public void success(final Void response) {
+                                    Toast.makeText(getActivity(),
+                                            application.getString(R.string.deleted_this_item,
+                                                    item.name),
+                                            Toast.LENGTH_LONG).show();
+                                    getActivity().onBackPressed();
+                                }
+                            });
                 }
             })
             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -504,13 +522,13 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                         }
 
                         final BaseApplication application = (BaseApplication) getActivity()
-                                                                                  .getApplication();
+                                .getApplication();
                         application.getGraphServiceClient()
                                 .getMe()
-                            .getDrive()
-                            .getItems(item.id)
-                            .getCreateLink(items[selection.get()].toString(), null) // TODO: Figure out what that should be
-                            .buildRequest()
+                                .getDrive()
+                                .getItems(item.id)
+                                .getCreateLink(items[selection.get()].toString(), null) // FYI
+                                .buildRequest()
                                 .post(new DefaultCallback<Permission>(getActivity()) {
                                     @Override
                                     public void success(final Permission permission) {
@@ -564,10 +582,10 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                         @Override
                         public void success(final DriveItem item) {
                             Toast.makeText(activity,
-                                              activity
-                                                  .getString(R.string.renamed_item, sourceItem.name,
-                                                                item.name),
-                                              Toast.LENGTH_LONG).show();
+                                    activity
+                                            .getString(R.string.renamed_item, sourceItem.name,
+                                                    item.name),
+                                    Toast.LENGTH_LONG).show();
                             refresh();
                             dialog.dismiss();
                         }
@@ -575,9 +593,9 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                         @Override
                         public void failure(final ClientException error) {
                             Toast.makeText(activity,
-                                              activity.getString(R.string.rename_error,
-                                                                    sourceItem.name),
-                                              Toast.LENGTH_LONG).show();
+                                    activity.getString(R.string.rename_error,
+                                            sourceItem.name),
+                                    Toast.LENGTH_LONG).show();
                             dialog.dismiss();
                         }
                     };
@@ -585,11 +603,11 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                     updatedItem.id = sourceItem.id;
                     updatedItem.name = newName.getText().toString();
                     ((BaseApplication) activity.getApplication())
-                        .getGraphServiceClient()
+                            .getGraphServiceClient()
                             .getMe()
-                        .getDrive()
-                        .getItems(updatedItem.id)
-                        .buildRequest()
+                            .getDrive()
+                            .getItems(updatedItem.id)
+                            .buildRequest()
                             .patch(updatedItem, callback);
                 }
             })
@@ -882,6 +900,11 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
      * @param item The menu item for SetCopyDestination
      */
     private void configureSetCopyDestinationMenuItem(final MenuItem item) {
+        if (COPY_DISABLED) {
+            item.setVisible(false);
+            return;
+        }
+
         if (mItem.file != null) {
             item.setVisible(false);
         } else {

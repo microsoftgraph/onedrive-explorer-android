@@ -151,7 +151,7 @@ public class DeltaFragment extends Fragment {
             .getMe()
             .getDrive()
             .getItems(mItemId)
-            .getDelta() // TODO: SERVICE overloads are not being created properly.
+            .getDelta() // TODO: SERVICE does not accept tokens.
             .buildRequest()
             .select("id,name,deleted")
             .get(pageHandler());
