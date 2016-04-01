@@ -22,15 +22,14 @@
 
 package com.microsoft.onedrive.apiexplorer;
 
-import com.microsoft.graph.extensions.DriveItem;
-import com.microsoft.graph.extensions.IGraphServiceClient;
-import com.microsoft.graph.extensions.ThumbnailRequestBuilder;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.LruCache;
+
+import com.microsoft.graph.extensions.DriveItem;
+import com.microsoft.graph.extensions.IGraphServiceClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,12 +92,11 @@ class DisplayItem {
                     InputStream in = null;
                     try {
                         final IGraphServiceClient graphServiceClient = base.getGraphServiceClient();
-                        final String requestUrl = graphServiceClient
+                        in = graphServiceClient
                                 .getDrive()
                                 .getItems(mId)
                                 .getThumbnails("0")
-                                .getRequestUrl();
-                        in = new ThumbnailRequestBuilder(requestUrl + "/small", graphServiceClient, null) // TODO: Add getThumbnailSize helper
+                                .getThumbnailSize("small")
                                 .getContent()
                                 .buildRequest()
                                 .get();

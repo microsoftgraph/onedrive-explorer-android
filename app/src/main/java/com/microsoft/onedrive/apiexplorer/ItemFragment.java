@@ -259,7 +259,7 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                 menu.findItem(R.id.action_copy).setVisible(true);
             }
 
-            menu.findItem(R.id.action_copy).setVisible(false); // TODO: Copy isn't supported in graph at the moment
+            menu.findItem(R.id.action_copy).setVisible(false); // TODO: SERVICE DriveItems copy isn't supported in graph at the moment
         }
     }
 
@@ -459,7 +459,7 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                     final BaseApplication application = (BaseApplication) getActivity()
                                                                               .getApplication();
                     application.getGraphServiceClient()
-                        .getMe()
+                            .getMe()
                         .getDrive()
                         .getItems(item.id)
                         .buildRequest()
@@ -506,26 +506,26 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                         final BaseApplication application = (BaseApplication) getActivity()
                                                                                   .getApplication();
                         application.getGraphServiceClient()
-                            .getMe()
+                                .getMe()
                             .getDrive()
                             .getItems(item.id)
                             .getCreateLink(items[selection.get()].toString(), null) // TODO: Figure out what that should be
                             .buildRequest()
-                            .post(new DefaultCallback<Permission>(getActivity()) {
-                                @Override
-                                public void success(final Permission permission) {
-                                    final ClipboardManager cm = (ClipboardManager)
-                                            getActivity()
-                                                    .getSystemService(Context.CLIPBOARD_SERVICE);
-                                    final ClipData data =
-                                            ClipData.newPlainText("Link Url", permission.link.webUrl);
-                                    cm.setPrimaryClip(data);
-                                    Toast.makeText(getActivity(),
-                                            application.getString(R.string.created_link),
-                                            Toast.LENGTH_LONG).show();
-                                    getActivity().onBackPressed();
-                                }
-                            });
+                                .post(new DefaultCallback<Permission>(getActivity()) {
+                                    @Override
+                                    public void success(final Permission permission) {
+                                        final ClipboardManager cm = (ClipboardManager)
+                                                getActivity()
+                                                        .getSystemService(Context.CLIPBOARD_SERVICE);
+                                        final ClipData data =
+                                                ClipData.newPlainText("Link Url", permission.link.webUrl);
+                                        cm.setPrimaryClip(data);
+                                        Toast.makeText(getActivity(),
+                                                application.getString(R.string.created_link),
+                                                Toast.LENGTH_LONG).show();
+                                        getActivity().onBackPressed();
+                                    }
+                                });
                     }
                 })
                 .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
@@ -586,11 +586,11 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                     updatedItem.name = newName.getText().toString();
                     ((BaseApplication) activity.getApplication())
                         .getGraphServiceClient()
-                        .getMe()
+                            .getMe()
                         .getDrive()
                         .getItems(updatedItem.id)
                         .buildRequest()
-                        .patch(updatedItem, callback);
+                            .patch(updatedItem, callback);
                 }
             })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -651,12 +651,12 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
 
                         ((BaseApplication) activity.getApplication())
                             .getGraphServiceClient()
-                            .getMe()
+                                .getMe()
                             .getDrive()
                             .getItems(mItemId)
                             .getChildren()
                             .buildRequest()
-                            .post(newItem, callback);
+                                .post(newItem, callback);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -846,7 +846,7 @@ public class ItemFragment extends Fragment implements AbsListView.OnItemClickLis
                         .getMe()
                         .getDrive()
                             .getItems(item.id)
-// TODO Add extension                        .getItemWithPath(itemPath.getText().toString())
+                            .getItemWithPath(itemPath.getText().toString())
                             .buildRequest()
                         .expand(getExpansionOptions())
                         .get(itemCallback);

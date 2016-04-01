@@ -139,7 +139,7 @@ public class BaseApplication extends Application {
             }
 
             @Override
-            public void failure(ClientException ex) {
+            public void failure(final ClientException ex) {
                 Toast.makeText(getBaseContext(), "Logout error " + ex, Toast.LENGTH_LONG).show();
             }
         });

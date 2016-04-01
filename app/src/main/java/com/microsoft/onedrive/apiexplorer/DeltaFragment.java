@@ -151,8 +151,8 @@ public class DeltaFragment extends Fragment {
             .getMe()
             .getDrive()
             .getItems(mItemId)
-            .getDelta() // TODO: overloads are not being created properly.
-                .buildRequest()
+            .getDelta() // TODO: SERVICE overloads are not being created properly.
+            .buildRequest()
             .select("id,name,deleted")
             .get(pageHandler());
     }
@@ -200,7 +200,9 @@ public class DeltaFragment extends Fragment {
                 view.findViewById(android.R.id.progress).setVisibility(View.INVISIBLE);
                 jsonView.setVisibility(View.VISIBLE);
                 if (page.getNextPage() != null) {
-                    // TODO: It looks like next page is broken
+                    page.getNextPage()
+                        .buildRequest()
+                        .get(pageHandler());
                 }
                 final JsonElement deltaToken = page.getRawObject().get("@delta.token");
                 if (deltaToken != null) {
