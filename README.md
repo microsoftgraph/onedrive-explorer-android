@@ -1,10 +1,10 @@
 # onedrive-explorer-android
-[![Build Status](https://travis-ci.org/OneDrive/onedrive-explorer-android.svg?branch=master)](https://travis-ci.org/OneDrive/onedrive-explorer-android)
+[![Build Status](https://travis-ci.org/microsoftgraph/onedrive-explorer-android.svg?branch=master)](https://travis-ci.org/microsoftgraph/onedrive-explorer-android)
 
 OneDrive API Explorer for Android Phone and Tablets
 
-This sample illustrates basic concepts for interacting with the OneDrive API
-from an Android application using the [OneDrive SDK for Android](https://github.com/OneDrive/onedrive-sdk-android).
+This sample illustrates basic concepts for interacting with the [Microsoft Graph API](http://graph.microsoft.io/en-us/) with OneDrive
+from an Android application using the [Microsoft Graph SDK for Android](https://github.com/microsoftgraph/msgraph-sdk-android).
 
 Included in this project:
 

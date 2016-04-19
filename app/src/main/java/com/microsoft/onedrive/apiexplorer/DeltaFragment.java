@@ -24,9 +24,9 @@ package com.microsoft.onedrive.apiexplorer;
 
 import com.google.gson.JsonElement;
 
-import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.extensions.IDeltaCollectionPage;
-import com.onedrive.sdk.extensions.Item;
+import com.microsoft.graph.extensions.DriveItem;
+import com.microsoft.graph.extensions.IDriveItemDeltaCollectionPage;
+import com.microsoft.graph.concurrency.ICallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,7 +89,7 @@ public class DeltaFragment extends Fragment {
      * @param item the item
      * @return The fragment
      */
-    static DeltaFragment newInstance(final Item item) {
+    static DeltaFragment newInstance(final DriveItem item) {
         final DeltaFragment fragment = new DeltaFragment();
         final Bundle args = new Bundle();
         args.putString(ARG_ITEM_ID, item.id);
@@ -147,10 +147,11 @@ public class DeltaFragment extends Fragment {
         final String deltaToken = getDeltaInfo().getString(mItemId, null);
         final Activity activity = getActivity();
         ((BaseApplication) activity.getApplication())
-            .getOneDriveClient()
+            .getGraphServiceClient()
+            .getMe()
             .getDrive()
             .getItems(mItemId)
-            .getDelta(deltaToken)
+            .getDelta() // TODO: SERVICE does not accept tokens.
             .buildRequest()
             .select("id,name,deleted")
             .get(pageHandler());
@@ -160,10 +161,10 @@ public class DeltaFragment extends Fragment {
      * Create a handler for downloaded pages
      * @return The callback to handle a fresh DeltaPage
      */
-    private ICallback<IDeltaCollectionPage> pageHandler() {
-        return new DefaultCallback<IDeltaCollectionPage>(getActivity()) {
+    private ICallback<IDriveItemDeltaCollectionPage> pageHandler() {
+        return new DefaultCallback<IDriveItemDeltaCollectionPage>(getActivity()) {
             @Override
-            public void success(final IDeltaCollectionPage page) {
+            public void success(final IDriveItemDeltaCollectionPage page) {
                 final View view = getView();
                 if (view == null) {
                     return;
@@ -182,7 +183,7 @@ public class DeltaFragment extends Fragment {
                 final TextView jsonView = (TextView) viewById;
                 final CharSequence originalText = jsonView.getText();
                 final StringBuilder sb = new StringBuilder(originalText);
-                for (final Item i : page.getCurrentPage()) {
+                for (final DriveItem i : page.getCurrentPage()) {
                     try {
                         final int indentSpaces = 3;
                         sb.append(new JSONObject(i.getRawObject().toString()).toString(indentSpaces));

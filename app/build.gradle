@@ -36,12 +36,19 @@ task checkstyle(type: Checkstyle) {
 }
 
 dependencies {
-    // Include the sdk as a dependency
-    compile('com.onedrive.sdk:onedrive-sdk-android:+')
+    // Android SDK for Graph
+    compile ('com.microsoft.graph:msgraph-sdk-android:0.9.+') {
+        transitive = false
+    }
+
+    // MSGraph MSA-Auth-for-Android-Adapter
+    compile ('com.microsoft.graph:msa-auth-for-android-adapter:0.9.+') {
+        transitive = false;
+    }
 
     // Include the gson dependency
-    compile 'com.google.code.gson:gson:2.3.1'
+    compile ('com.google.code.gson:gson:2.3.1')
 
     // Include supported authentication methods for your application
-    compile 'com.microsoft.services.msa:msa-auth:0.8.4'
+    compile ('com.microsoft.services.msa:msa-auth:0.8.+')
 }

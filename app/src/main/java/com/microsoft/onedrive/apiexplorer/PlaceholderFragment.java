@@ -22,14 +22,14 @@
 
 package com.microsoft.onedrive.apiexplorer;
 
-import com.onedrive.sdk.concurrency.ICallback;
-
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.microsoft.graph.core.ClientException;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -62,20 +62,30 @@ public class PlaceholderFragment extends Fragment {
             public void onClick(final View v) {
                 button.setEnabled(false);
                 final BaseApplication app = (BaseApplication)getActivity().getApplication();
-                final ICallback<Void> serviceCreated = new DefaultCallback<Void>(getActivity()) {
+
+                app.getAuthenticationAdapter().login(getActivity(), new DefaultCallback<Void>(getActivity()) {
                     @Override
-                    public void success(final Void result) {
-                        navigateToRoot();
-                        button.setEnabled(true);
+                    public void success(Void aVoid) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                button.setEnabled(true);
+                                navigateToRoot();
+                            }
+                        });
                     }
-                };
-                try {
-                    app.getOneDriveClient();
-                    navigateToRoot();
-                    button.setEnabled(true);
-                } catch (final UnsupportedOperationException ignored) {
-                    app.createOneDriveClient(getActivity(), serviceCreated);
-                }
+
+                    @Override
+                    public void failure(ClientException ex) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                button.setEnabled(true);
+                            }
+                        });
+                        super.failure(ex);
+                    }
+                });
             }
         });
 

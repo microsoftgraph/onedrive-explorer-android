@@ -27,8 +27,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 
-import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.core.ClientException;
+import com.microsoft.graph.concurrency.ICallback;
+import com.microsoft.graph.core.ClientException;
 
 /**
  * A default callback that logs errors
