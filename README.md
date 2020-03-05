@@ -1,20 +1,3 @@
----
-page_type: sample 
-products:
-- office-onedrive
-- ms-graph
-languages:
-- java
-extensions:
-  contentType: samples
-  technologies:
-  - Microsoft Graph
-  services:
-  - OneDrive
-  platforms:
-  - Android
-  createdDate: 4/12/2016 10:38:58 AM
----
 # onedrive-explorer-android
 [![Build Status](https://travis-ci.org/microsoftgraph/onedrive-explorer-android.svg?branch=master)](https://travis-ci.org/microsoftgraph/onedrive-explorer-android)
 
